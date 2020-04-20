@@ -1,0 +1,126 @@
+---
+title: "Studiengenerator"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+<style>
+/* NO NAVBAR HEADER */
+body {
+  padding-top: 0px;
+}
+
+.navbar {
+  visibility: hidden;
+  }
+  
+.section.sidebar {
+ top: 0;
+ }
+</style>
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(shiny)
+
+# population <- rnorm(2000, mean = 500, sd = 100)
+```
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+```{r }
+wellPanel(
+  h3("Neue Studie mit..."),
+  sliderInput("n", 
+              label = strong("Stichprobengröße je Gruppe"), 
+              5, 250, 20, 1, ticks = F),
+  checkboxInput("kg", "Kontrollgruppe (grün)", FALSE),
+  checkboxInput("rep", "repräsentative Stichprobe", FALSE),
+  sliderInput("breite", label = "Breite Plot", 100, 600, 200, 50, ticks = F),
+  br(),
+  hr(),
+  strong("Diese Studie kostet Sie:"),
+  renderText(paste(input$n * ifelse(input$kg == F, 1, 2), "€")),
+  br(),
+  conditionalPanel(condition = "money.curr >= 0",
+  actionButton("go",
+               "Studie durchführen")
+  )
+)
+
+# DATA ######
+subsample <- reactiveValues(plotdata = NA)
+
+observeEvent(input$go, {
+  subsample$plotdata <- data.frame(eg = sample(rnorm(1000, mean = 530, sd = 200), size = input$n),
+                                   kg = sample(rnorm(1000, mean = 500, sd = 200), size = input$n))
+  })
+
+# CASH ######
+money <- reactiveValues(curr = 5000)
+
+observeEvent(input$go, {
+  money$curr <- money$curr - input$n * 10 * ifelse(input$kg == F, 1, 2)
+})
+
+wellPanel(strong("Sie haben noch €:"),
+          renderText(money$curr))
+```
+
+Column 
+-----------------------------------------------------------------------
+
+
+```{r}
+library(ggplot2)
+
+    renderPlot({
+      if (input$go > 0) {
+        p <- ggplot(subsample$plotdata, aes(x=eg)) +
+                geom_vline(xintercept = 515, color = "red", linetype = "dashed", size = 2, alpha = .3) +
+                geom_text(aes(y=.0005, x = 535, label = "Mein Kurs\n515 Punkte"), color = "red", alpha = .05) +
+                scale_x_continuous(limits = c(500-input$breite, 500+input$breite)) +
+                scale_y_continuous(limits = c(0, 0.006))
+        
+        if (input$rep == F) {
+        p <- p +
+                geom_density(color = "darkblue", fill = "#1b4f8d", alpha = .2) +
+                geom_vline(xintercept = mean(subsample$plotdata$eg), color = "darkblue") +
+                geom_text(aes(y=.005, x = mean(subsample$plotdata$eg)+15, 
+                              label = paste("Mittel=", round(mean(subsample$plotdata$eg)))), 
+                          alpha = .1, color = "darkblue")
+        }
+        
+        if (input$rep == T) {
+        p <- p +
+                geom_density(aes(x=eg-30), color = "darkblue", fill = "#1b4f8d", alpha = .2) +
+                geom_vline(xintercept = (mean(subsample$plotdata$eg)-30), color = "darkblue") +
+                geom_text(aes(y=.005, x = (mean(subsample$plotdata$eg)-15), 
+                              label = paste("Mittel=", (round(mean(subsample$plotdata$eg))-30))), 
+                          alpha = .3, color = "darkblue")
+        }
+        
+        if (input$kg == TRUE) {
+          p <- p +
+            geom_density(aes(x=subsample$plotdata$kg), color = "darkgreen", fill = "green", alpha = .2) +
+                geom_vline(xintercept = mean(subsample$plotdata$kg), color = "darkgreen") +
+                geom_text(aes(y=.0045, x = mean(subsample$plotdata$kg)+20, 
+                              label = paste("Mittel KG=", round(mean(subsample$plotdata$kg)))), 
+                          alpha = .1, color = "darkgreen")
+        }
+        
+        p + 
+          theme_minimal() +
+          theme(legend.position='none') +
+          xlab("Punkte im Kompetenztest") +
+          ylab("Dichte")
+      }
+    })
+    
+  renderText({
+    if (input$go == 0) {"Bitte Merkmale einstellen und 'Studie durchführen' drücken!"}
+  })
+
+```
+
