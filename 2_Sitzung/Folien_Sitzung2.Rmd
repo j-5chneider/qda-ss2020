@@ -1,0 +1,266 @@
+---
+title: "Quantitative Datenanalyse"
+subtitle: "in der Schulforschung & Schulentwicklung"
+author: 
+  - Jürgen Schneider
+  - Samuel Merk
+date: "27. Apr 2020"
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+    logo: ../www/logo.gif
+    css:  ../www/style.css
+bibliography: ../www/references.bib
+editor_options: 
+  chunk_output_type: console
+csl: ../www/apa7.csl
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = F, message = F)
+# download.file("https://drive.google.com/uc?export=download&id=1wuMqL_Z8T9rxuGvn0VP6siag90kHDm2O", 
+#               "../www/references.bib", overwrite = T)
+
+library(shiny)
+
+```
+
+## zoom
+
+<img src="../www/zoom.png"  width="55%" style="position:absolute; top:17%; left:5%;" />
+
+<div style="position:absolute; top:17%; left:62%;" >
+
+* zum Sprechen: <br />Leertaste gedrückt halten
+
+\
+
+* Bildschirm/ Inhalte teilen
+
+\
+
+* "Hand heben": <br />Participants > rise hand
+
+</div>
+
+
+## Lernziele
+
+* Kennen diskrete und stetige Zufallsvariablen
+* Kennen Wahrscheinlichkeitsverteilungen und Dichtefunktionen
+* Kennen Verteilungsfunktionen
+* Verstehen den Zusammenhang zwischen
+  - Art der Zufallsvariablen (diskret/ stetig)
+  - Wahrscheinlichkeitsverteilungen und Dichtefunktionen
+  - Verteilungsfunktionen
+  - Wahrscheinlichkeit
+
+## Ablauf der Sitzung
+
+1. Rückblick
+2. Fragen zum Erklärvideo/ Aufgaben
+3. Diskrete Zufallsvariablen
+   - Wahrscheinlichkeitsverteilung
+   - Verteilungsfunktion
+4. Stetige Zufallsvariablen
+   - Dichtefunktion
+   - Verteilungsfunktion
+
+## Rückblick | Deskription vs. Inferenz
+
+__Ziel__: Aussagen über allgemeine Gesetzmäßigkeiten in/ Merkmale der Population
+
+* Stichprobenansatz nötig
+* Schwankungen der Stichprobenkennwerte, u.a.
+  - Größe Stichprobe
+  - Art der Stichprobenziehung
+  - ...
+  
+`r icon("hand-point-right")` Wahrscheinlichkeit, um Risiko zu quantifizieren
+
+# Fragen zum Erklärvideo/ Aufgaben
+
+## Ihre Fragen
+
+<iframe src="https://embed.polleverywhere.com/discourses/JiHGduN84emGvfbsG1Jfx?controls=all&short_poll=true" width="800" height="600" frameBorder="0"></iframe>
+
+## Ihre Fragen | falls keine Fragen
+
+In der empirischen Sozialforschung interessiert uns u.a. die Abhängigkeit/ Unabhängigkeit zweier Ereignisse. 
+Zwei Ereignisse sind dann unabhängig, wenn
+
+* die bedingten Wahrscheinlichkeiten gleich
+* der unbedingten Wahrscheinlichkeit ist.
+
+Formal: $P(A|B) = P(A)$  
+
+Berechnen Sie die bedingten Wahrscheinlichkeiten (nächste Folie).
+
+
+## Kolmogorov | Abhängigkeit vs. Unabhängigkeit zweier Ereignisse
+Sie sehen hier eine Häufigkeitstabelle, in der die Anzahl der Autos nach Art der Gangschaltung und Anzahl der Gänge abgetragen sind.  
+Berechnen Sie die bedingten Wahrscheinlichkeiten eine Automatik Gangschaltung zu haben, unter der Bedingung 3 Gänge (oder 4 oder 5) zu haben.  
+
+ $P(Automatik | 3 Gänge) = ?$  
+ $P(Automatik | 4 Gänge) = ?$  
+ $P(Automatik | 5 Gänge) = ?$    
+
+```{r}
+library(pander)
+library(dplyr)
+bedingte_WK <- mtcars
+bedingte_WK$am <- ifelse(bedingte_WK$am == 1, "manuelle Schaltung", "Automatik")
+bedingte_WK$gang <- case_when(bedingte_WK$gear == 3 ~ "3 Gänge", 
+                              bedingte_WK$gear == 4 ~ "4 Gänge",
+                              bedingte_WK$gear == 5 ~ "5 Gänge")
+
+
+
+pander(table(bedingte_WK$am, bedingte_WK$gang))
+```
+
+## Kolmogorov | Wahrscheinlichkeit Gegenereignis
+
+<img src="../www/2_1.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Kolmogorov | Wahrscheinlichkeit Gegenereignis
+
+<img src="../www/2_2.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Kolmogorov | Wahrscheinlichkeit Gegenereignis
+
+<img src="../www/2_3.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+# Zufallsvariablen
+
+## Zufallsvariablen | Irrtumswahrscheinlichkeit
+Beispiel Onlinekurs Computational Thinking: Mein Kurs (515 Punkte) war weit über dem standardisierten Mittelwert (500 Punkte), deshalb wirkt mein Kurs!
+
+* immer Möglichkeit der falschen Entscheidung
+
+\
+
+* bemüht Risiko gering zu halten
+
+\
+
+`r icon("hand-point-right")` Risiko quantifizieren
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+Zufallsvariable (ZV) $X: \Omega \rightarrow \Omega'$
+
+* Weisen Ereignissen eine Zahl zu
+* beschreibt Ergebnisse eines Zufallsexperiments $\Omega$ in einem Zahlenraum $\Omega'$
+
+Diskrete ZV: Ausprägungen der ZV sind _endlich_ abzählbar
+
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+Zufallsvariable (ZV) $X: \Omega \rightarrow \Omega'$
+
+* Zusammenhang zwischen Ereignissen und Konsequenzen
+* beschreibt Ergebnisse eines Zufallsexperiments $\Omega$ in einem Zahlenraum $\Omega'$
+
+Diskrete ZV: Ausprägungen der ZV sind _endlich_ abzählbar
+\
+
+__Beispiel__  
+Uns werden Wetten angeboten, in denen es darum geht,
+
+* wie oft "Kopf"
+* beim 3-fachen Münzwurf
+
+sichtbar sein wird.  
+Welche Wahrscheinlichkeiten haben die einzelnen Möglichkeiten?
+
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_4.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_5.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_6.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_7.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_8.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen | Verteilungsfunktion
+
+<img src="../www/2_9.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Stetige Zufallsvariablen | Dichtefunktion
+
+Stetige ZV: Zwischen zwei Werten ($x_1, x_2$) können unendlich viele Werte angenommen werden.  
+
+\
+__Beispiel__  
+Intuitiv: Wenn wir unendlich genau messen könnten, wie groß ist die Wahrscheinlichkeit, dass eine Person exakt 170,000...cm groß ist?
+
+```{r, fig.height=3, fig.width=9}
+tmp <- data.frame(x = rnorm(1000, mean = 178, sd = 20))
+library(tidyverse)
+
+# ggplot(tmp, aes(x=x)) + geom_density() + scale_x_continuous(limits = c(100, 250), breaks = c(100,125,150,175,200,225,250))
+library(ggpubr)
+
+p1 <- ggplot(tmp, aes(x=x)) + geom_histogram(binwidth = 20, fill = NA, color = "black") + scale_y_continuous(limits = c(0,400))
+p2 <- ggplot(tmp, aes(x=x)) + geom_histogram(binwidth = 10, fill = NA, color = "black") + scale_y_continuous(limits = c(0,400))
+p3 <- ggplot(tmp, aes(x=x)) + geom_histogram(binwidth = 1) + scale_y_continuous(limits = c(0,400))
+
+ggarrange(p1, p2, p3,
+          ncol = 3,
+          nrow = 1)
+```
+
+## Stetige Zufallsvariablen | Dichtefunktion
+
+* Lösung: Wahrscheinlichkeiten von Intervallen
+* Dichtefunktion: Funktion, die die WK eines Intervals angibt
+* Fläche unter Interval = Wahrscheinlichkeit
+
+\
+__Beispiel__   
+Zeit, die Sie im Wartezimmer warten müssen, wenn die Behandlungszeit immer genau 5min beträgt.  
+Uniformverteilung: [https://ggbm.at/ck6pfwue](https://ggbm.at/ck6pfwue)
+
+## Stetige Zufallsvariablen | Verteilungsfunktion
+
+:= Wahrscheinlichkeit der ZV den Wert $x$ oder kleiner anzunehmen
+
+\
+
+`r icon("hand-point-right")` Wahrscheinlichkeit des Intervals von $x_1 = - \infty$ bis $x_2 = x$
+
+## Stetige Zufallsvariablen | Übung
+
+Elaborieren Sie anhand der App ([https://ggbm.at/uRcrDyKj](https://ggbm.at/uRcrDyKj)) die Dichte- & Verteilungsfunktion:
+\
+
+__Aufgabe 1__  
+Mit welcher Wahrscheinlichkeit liegt eine Person im Intervall $x_1=-1$ und $x_2=1$, wenn der Kompetenztest auf $\mu=0$ und $\sigma=1$ standardisiert ist? Erklären Sie sich gegenseitig, wie Sie auf die Lösung gekommen sind.
+
+\
+
+__Aufgabe 2__  
+Ich hatte behauptet, dass mein Onlinekurs zum Computational Thinking super erfolgriech ist. Wäre der Test auf $\mu=0$ und $\sigma=2$ normiert gewesen, hätte meine Gruppe einen Wert von $x=.10$ erzielt. Wie wahrscheinlich ist es, diesen _oder einen noch höheren Wert_ zu erzielen? Wie gut ist also mein Argument?
+
+
+# Vielen Dank | Für die Aufmerksamkeit
+
+# Literatur

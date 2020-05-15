@@ -177,11 +177,16 @@ a:active {
 .box45l {
   width: 45%;
   margin-right: 20px;
+  position: absolute;
+  left: 6%;
+  top: 35%;
 }
 
 .box45r {
   width: 45%;
-  margin-left: 53%;
+  position: absolute;
+  left: 53%;
+  top: 35%;
 }
 
 .box50r {

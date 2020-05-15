@@ -1,0 +1,29 @@
+Type: Compendium
+Package: iwm OS workshop
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.1
+Authors@R: 
+  person(given = "Juergen",
+         family = "Schneider",
+         role = c("aut", "cre"),
+         email = "juergen.schneider@uni-tuebingen.de",
+         comment = c(ORCID = "0000-0002-3772-4198"))
+Description: files of workshop
+License: CC-BY 4.0
+Depends: 
+  rmarkdown,
+  knitr,
+  shiny,
+  pander,
+  flexdashboard,
+  ggplot2,
+  dplyr,
+  ggpubr,
+  tidyverse,
+  hrbrthemes,
+  holepunch
+Remotes: 
+  centerforopenscience/osfr,
+  rubenarslan/formr
+Encoding: UTF-8
+LazyData: true

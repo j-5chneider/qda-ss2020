@@ -1,0 +1,176 @@
+---
+title: "Quantitative Datenanalyse"
+subtitle: "in der Schulforschung & Schulentwicklung"
+author: 
+  - Jürgen Schneider
+  - Samuel Merk
+date: "11. Mai 2020"
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+    logo: ../www/logo.gif
+    css:  ../www/style.css
+bibliography: ../www/references.bib
+editor_options: 
+  chunk_output_type: console
+csl: ../www/apa7.csl
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = F, message = F)
+# download.file("https://drive.google.com/uc?export=download&id=1wuMqL_Z8T9rxuGvn0VP6siag90kHDm2O", 
+#               "../www/references.bib", overwrite = T)
+
+library(shiny)
+library(tidyverse)
+```
+
+
+
+
+## Lernziele
+
+* Mehrwert und Herausforderung theoretischer Aussagen verstehen
+\
+
+* konzeptuelles Verständnis des Bayes Factors
+\
+
+* Zusammenhang zwischen Hypothesen, bedingten Wahrscheinlichkeiten & BF verstehen
+
+## Ablauf | Diese Sitzung
+
+* Falsifizierbarkeit & Informationsgehalt theoretischer Aussagen
+
+\
+
+* Definition Bayes Factor, Punkt- & Verteilungshypothesen
+
+\
+
+* Übung zum Bayes Factor
+
+## Letzte Sitzung
+
+1. Visualisierung zu Zusamenhängen zw. $\alpha$, $\beta$, $N$, Effekstärke
+2. Erkenntnislogiken
+3. Informationsgehalt & Falsifizierbarkeit theoretischer Aussagen
+
+## Falsifizierbarkeit & Informationsgehalt | theoretischer Aussagen
+
+"Wenn gewalthaltige digitale Spiele genutzt werden, dann zeigen sich verstärkt aggressive Gedanken."
+
+"Wenn im Jugendalter sehr viele gewalthaltige digitale Spiele genutzt werden und eine Vernachlässigung durch die Eltern vorliegt und schlechte Bildungs- und Berufschancen bestehen und das Selbstwertgefühl gering ist, dann zeigen sich verstärkt aggressive Gedanken."
+
+"Wenn gewalthaltige digitale Spiele oder gewalthaltige Fernsehprogramme genutzt werden, dann zeigen sich verstärkt aggressive Gedanken."
+
+"Wenn gewalthaltige digitale Spiele genutzt werden, dann zeigen sich verstärkt aggressive Gedanken und aggressive Verhaltensweisen."
+
+"Wenn gewalthaltige digitale Spiele genutzt werden, dann zeigen sich verstärkt aggressive Gedanken oder aggressive Verhaltensweisen."
+
+
+## Einstieg
+
+<iframe src="https://embed.polleverywhere.com/discourses/JiHGduN84emGvfbsG1Jfx?controls=none&short_poll=true" width="800" height="600" frameBorder="0"></iframe>
+
+## Bayes Factor
+
+The Bayes factor is the relative evidence in the data. The evidence in the data favors one hypothesis, relative to another, exactly to the degree that the hypothesis predicts the observed data better than the other. (Morey, 2014)
+
+$\frac{P(H_1|D)}{P(H_0|D)}=\frac{P(D|H_1)}{P(D|H_0)} * \frac{P(H_1)}{P(H_0)}$  
+
+
+
+## Hypothesen | Punkthypothesen vs. Verteilungshypothesen
+
+* Punkthypothesen: Angabe einer exakten Schätzung
+  - Anteil an G9-Befürwortern in Dtl. = 55%
+  - Beim Münzwurf mit dieser Münze kommt zu 50% Kopf
+  - Der Effekt des Trainings ist Cohen's $d=.20$
+* Verteilungshypothesen: Angabe einer Schätzung & Unsicherheit
+  - Abgabe einer Schätzung, oftmals z.B. sichtbar an Erwartungswert
+  - Angabe der Unsicherheit z.B. sichtbar an Varianz
+
+# Recap | Wahrscheinlichkeitsverteilung diskrete ZV
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_5.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_6.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_7.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen | Wahrscheinlichkeitsverteilung
+
+<img src="../www/2_8.png"  width="70%" style="position:absolute; top:17%; left:5%;" />
+
+## Diskrete Zufallsvariablen
+
+```{r}
+bin_p <- data.frame(x = 0:3,
+                    fuenf = dbinom(0:3,3,0.5),
+                    sechs = dbinom(0:3,3,0.6))
+
+p1 <-
+ggplot(bin_p, aes(x=x, y = fuenf)) +
+    geom_segment(aes(y=0, yend=fuenf, xend=x), color = "#a51e37", size = 2, position = position_nudge(x=-.03)) +
+    geom_point(size=4, color="#a51e37", position = position_nudge(x=-.03)) +
+    ylab("P(X=x)") +
+    scale_y_continuous(limits = c(0,0.5)) +
+    theme_bw()
+
+p1
+```
+
+## Diskrete Zufallsvariablen
+
+```{r}
+p2 <- 
+ggplot(bin_p, aes(x=x, y = sechs)) +
+    geom_segment(aes(y=0, yend=sechs, xend=x), color = "#b4a069", size = 2, position = position_nudge(x=.03)) +
+    geom_point(size=4, color="#b4a069", position = position_nudge(x=.03)) +
+    ylab("P(X=x)") +
+    scale_y_continuous(limits = c(0,0.5)) +
+    theme_bw()
+
+p3 <-
+ggplot(bin_p, aes(x=x, y = fuenf)) +
+    geom_segment(aes(y=0, yend=fuenf, xend=x), color = "#a51e37", size = 2, position = position_nudge(x=-.03)) +
+    geom_point(size=4, color="#a51e37", position = position_nudge(x=-.03)) +
+    geom_segment(aes(y=0, yend=sechs, xend=x), color = "#b4a069", size = 2, position = position_nudge(x=.03)) +
+    geom_point(aes(x=x, y=sechs),size=4, color="#b4a069", position = position_nudge(x=.03)) +
+    ylab("P(X=x)") +
+    scale_y_continuous(limits = c(0,0.5)) +
+    theme_bw()
+
+p3
+# library(ggpubr)
+# ggarrange(p1, p2, p3,
+#           ncol = 3,
+#           nrow = 1,
+#           align = "hv"
+#           )
+```
+
+## Beispiele
+
+* 3-maliger Münzwurf: Wie oft kommt Kopf?
+* Anteil der G9-Befürworter in der Population?
+
+Siehe App:  
+[https://shiny.jschn.org/qda-ss2020/4_Sitzung/bf.Rmd](https://shiny.jschn.org/qda-ss2020/4_Sitzung/bf.Rmd)
+
+
+
+# Vielen Dank | Für die Aufmerksamkeit
+
+# Literatur

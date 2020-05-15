@@ -41,7 +41,7 @@ wellPanel(
   br(),
   hr(),
   strong("Diese Studie kostet Sie:"),
-  renderText(paste(input$n * ifelse(input$kg == F, 1, 2), "€")),
+  renderText(paste(input$n * 10 * ifelse(input$kg == F, 1, 2), "€")),
   br(),
   conditionalPanel(condition = "money.curr >= 0",
   actionButton("go",

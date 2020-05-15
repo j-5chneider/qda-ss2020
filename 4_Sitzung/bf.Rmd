@@ -1,0 +1,238 @@
+---
+title: "Bayes Faktoren"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+Anzahl Kopf (ohne Daten)
+=======================================================================
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+library(hrbrthemes)
+library(tidyverse)
+# library(ggalt)
+library(shiny)
+h4("Ist die Münze fair?") 
+p("Mit welcher Wahrscheinlichkeit kommt Kopf?")
+sliderInput("theta_c", "Carolas Hypothese", 0, 1, 0.5)
+sliderInput("theta_p", "Pauls Hypothese", 0, 1, 0.6)
+
+```
+
+<center>
+
+
+Column 
+-----------------------------------------------------------------------
+
+__Wahrscheinlichkeitsverteilung__  
+der Ausprägungen der diskreten Zufallsvariablen 'Anzahl Kopf' beim dreimaligen Münzwurf, gegeben Carolas und Pauls Hypothesen.
+
+```{r, echo = F}
+renderPlot({
+    data_binom <- data.frame(Carola = dbinom(0:3, 3, input$theta_c),
+                             Paul = dbinom(0:3, 3, input$theta_p),
+                             AnzahlKopf = 0:3)
+
+  ggplot(data_binom, aes(AnzahlKopf, Carola)) + 
+      geom_segment(aes(y=0, yend=Carola, xend=AnzahlKopf), color = "#a51e37", size = 2, position = position_nudge(x=-.03)) +
+      geom_point(size=4, color="#a51e37", position = position_nudge(x=-.03)) + 
+      geom_segment(aes(y=0, yend=Paul, xend=AnzahlKopf), color = "#b4a069", size = 2, position = position_nudge(x=.03)) +
+      geom_point(aes(y=Paul), size=4, color="#b4a069", position = position_nudge(x=.03)) + 
+      theme_ipsum_ps() + 
+      scale_color_manual(values = c("#a51e41","#b4a069")) +
+      ylab("P(X=x)")
+  }, 
+  outputArgs = list(width = "80%",height="400px"))
+```
+
+\
+
+__Konkrete Werte__
+```{r, echo = F}
+renderTable({data_binom <- data.frame(Carola = dbinom(0:3, 3, input$theta_c),
+                             Paul = dbinom(0:3, 3, input$theta_p),
+                             AnzahlKopf = 0:3)
+             data_binom})
+```
+
+
+Anzahl Kopf (mit Daten)
+=======================================================================
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+h4("Ist die Münze fair?") 
+p("Mit welcher Wahrscheinlichkeit kommt Kopf?")
+sliderInput("theta_c2", "Carolas Hypothese", 0, 1, 0.5)
+sliderInput("theta_p2", "Pauls Hypothese", 0, 1, 0.6)
+br()
+br()
+h4("Sie werfen die Münze 3x")
+p("wie oft kommt in Ihrer Stichprobe Kopf vor?")
+sliderInput("anzk", "Anzahl Kopf (in Stichprobe)", 0, 3, 1)
+```
+
+<center>
+
+
+Column 
+-----------------------------------------------------------------------
+
+__Wahrscheinlichkeitsverteilung__  
+der Ausprägungen der diskreten Zufallsvariablen 'Anzahl Kopf' beim dreimaligen Münzwurf, gegeben Carolas und Pauls Hypothesen.
+
+```{r, echo = F}
+renderPlot({
+    data_binom <- data.frame(Carola = dbinom(0:3, 3, input$theta_c2),
+                             Paul = dbinom(0:3, 3, input$theta_p2),
+                             AnzahlKopf = 0:3)
+
+  ggplot(data_binom, aes(AnzahlKopf, Carola)) + 
+      geom_segment(aes(y=0, yend=Carola, xend=AnzahlKopf), color = "#a51e37", size = 2, position = position_nudge(x=-.03)) +
+      geom_point(size=4, color="#a51e37", position = position_nudge(x=-.03)) + 
+      geom_segment(aes(y=0, yend=Paul, xend=AnzahlKopf), color = "#b4a069", size = 2, position = position_nudge(x=.03)) +
+      geom_point(aes(y=Paul), size=4, color="#b4a069", position = position_nudge(x=.03)) + 
+      geom_segment(aes(y=0, yend=data_binom$Carola[(input$anzk+1)], x= input$anzk, xend=input$anzk), color = "black", size = 2, position = position_nudge(x=-.03)) +
+    geom_segment(aes(y=0, yend=data_binom$Paul[(input$anzk+1)], x= input$anzk, xend=input$anzk), color = "black", size = 2, position = position_nudge(x=.03)) +
+      geom_point(aes(x=input$anzk, y=data_binom$Carola[(input$anzk+1)]), size = 8, color ="black", position = position_nudge(x=-.03), shape = 4) +
+      geom_point(aes(x=input$anzk, y=data_binom$Paul[(input$anzk+1)]), size = 8, color ="black", position = position_nudge(x=.03), shape = 4) +
+      geom_hline(yintercept = data_binom$Carola[(input$anzk+1)]) +
+      geom_hline(yintercept = data_binom$Paul[(input$anzk+1)]) +
+      theme_ipsum_ps() + 
+      scale_color_manual(values = c("#a51e41","#b4a069")) +
+      ylab("P(X=x)")
+  }, 
+  outputArgs = list(width = "80%",height="400px"))
+```
+
+\
+
+__Bayes Factor__  
+
+````{r}
+data_binom <- reactive({data.frame(Carola = dbinom(0:3, 3, input$theta_c2),
+                             Paul = dbinom(0:3, 3, input$theta_p2),
+                             AnzahlKopf = 0:3)})
+```
+
+* P($X=$`r renderText(input$anzk)`$| H_{Carola}$) =  `r renderText(data_binom()$Carola[(input$anzk+1)])`
+* P($X=$`r renderText(input$anzk)`$| H_{Paul}$) =  `r renderText(data_binom()$Paul[(input$anzk+1)])`
+
+`r renderText(data_binom()$Carola[(input$anzk+1)])`/`r renderText(data_binom()$Paul[(input$anzk+1)])` = `r renderText({dbinom(input$anzk, 3, input$theta_c2)/dbinom(input$anzk, 3, input$theta_p2)})`
+
+\
+\
+
+__in R__  
+```{r, echo = F}
+renderPrint({cat(paste("dbinom(", input$anzk, ", 3, ", input$theta_c2, ")/dbinom(", input$anzk, ", 3, ", input$theta_p2, ")", sep = ""))})
+renderPrint({
+  dbinom(input$anzk, 3, input$theta_c2)/dbinom(input$anzk, 3, input$theta_p2)
+})
+```
+
+G9 Befürworter\*innen (ohne Daten)
+=======================================================================
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+h4("Wie groß ist...") 
+p("der Anteil an G9 Befürworter*innen in der Population?")
+sliderInput("theta_c3", "Carolas Hypothese", 0, 1, .5)
+sliderInput("theta_p3", "Pauls Hypothese", 0, 1, .6)
+
+```
+
+
+Column 
+-----------------------------------------------------------------------
+
+__Wahrscheinlichkeitsverteilung__  
+der Ausprägungen der diskreten Zufallsvariablen 'Anteil an G9 Befürwoter*innen', gegeben Carolas und Pauls Hypothesen.
+
+```{r, echo = F}
+renderPlot({
+      data_binom <- data.frame(Carola = dbinom(0:100, 100, input$theta_c3),
+                             Paul = dbinom(0:100, 100, input$theta_p3),
+                             Stichprobe = 0:100)
+
+  ggplot(data_binom, aes(Stichprobe, Carola)) + 
+      geom_segment(aes(y=0, yend=Carola, xend=Stichprobe), color = "#a51e37", size = 1, position = position_nudge(x=-.03), alpha = .5) +
+      geom_point(size=2, color="#a51e37", position = position_nudge(x=-.03), alpha = .5) + 
+      geom_segment(aes(y=0, yend=Paul, xend=Stichprobe), color = "#b4a069", size = 1, position = position_nudge(x=-.03), alpha = .5) +
+      geom_point(aes(y=Paul), size=2, color="#b4a069", position = position_nudge(x=-.03), alpha = .5) + 
+      theme_ipsum_ps() + 
+      scale_color_manual(values = c("#a51e41","#b4a069")) +
+      xlab("Anzahl Befürworter*innen in der Stichprobe") +
+      ylab("P(X=x)")}, 
+  outputArgs = list(width = "80%",height="400px"))
+```
+
+
+G9 Befürworter\*innen (mit Daten)
+=======================================================================
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+h4("Wie groß ist...") 
+p("der Anteil an G9 Befürworter*innen in der Population?")
+sliderInput("theta_c4", "Carolas Hypothese", 0, 1, .5)
+sliderInput("theta_p4", "Pauls Hypothese", 0, 1, .6)
+br()
+br()
+h4("Sie befragen 100 Personen")
+p("in dieser Stichprobe befürworten das G9:")
+sliderInput("g9", "Anzahl Befürworter*innen", 0, 100, 45)
+```
+
+
+Column 
+-----------------------------------------------------------------------
+
+__Wahrscheinlichkeitsverteilung__  
+der Ausprägungen der diskreten Zufallsvariablen 'Anteil an G9 Befürwoter*innen', gegeben Carolas und Pauls Hypothesen.
+
+```{r, echo = F}
+renderPlot({
+      data_binom <- data.frame(Carola = dbinom(0:100, 100, input$theta_c3),
+                             Paul = dbinom(0:100, 100, input$theta_p3),
+                             Stichprobe = 0:100)
+
+  ggplot(data_binom, aes(Stichprobe, Carola)) + 
+      geom_segment(aes(y=0, yend=Carola, xend=Stichprobe), color = "#a51e37", size = 1, position = position_nudge(x=-.03), alpha = .5) +
+      geom_point(size=2, color="#a51e37", position = position_nudge(x=-.03), alpha = .5) + 
+      geom_segment(aes(y=0, yend=Paul, xend=Stichprobe), color = "#b4a069", size = 1, position = position_nudge(x=-.03), alpha = .5) +
+      geom_point(aes(y=Paul), size=2, color="#b4a069", position = position_nudge(x=-.03), alpha = .5) + 
+      geom_segment(aes(y=0, yend=data_binom$Carola[(input$g9+1)], x= input$g9, xend=input$g9), color = "black", size = 1, position = position_nudge(x=-.03)) +
+      geom_segment(aes(y=0, yend=data_binom$Paul[(input$g9+1)], x= input$g9, xend=input$g9), color = "black", size = 1, position = position_nudge(x=.03)) +
+      geom_point(aes(x=input$g9, y=data_binom$Carola[(input$g9+1)]), size = 8, color ="#a51e37", position = position_nudge(x=-.03), shape = 4) +
+      geom_point(aes(x=input$g9, y=data_binom$Paul[(input$g9+1)]), size = 8, color ="#b4a069", position = position_nudge(x=.03), shape = 4) +
+      geom_hline(yintercept = data_binom$Carola[(input$g9+1)]) +
+      geom_hline(yintercept = data_binom$Paul[(input$g9+1)]) +
+      theme_ipsum_ps() + 
+      scale_color_manual(values = c("#a51e41","#b4a069")) +
+      xlab("Anzahl Befürworter*innen in der Stichprobe") +
+      ylab("P(X=x)")}, 
+  outputArgs = list(width = "80%",height="400px"))
+```
+
+__Bayes Factor__  
+```{r, echo = F}
+renderPrint({cat(paste("dbinom(", input$g9, ", 100, ", input$theta_c4, ")/dbinom(", input$g9, ", 100, ", input$theta_p4, ")", sep = ""))})
+renderPrint({
+  dbinom(input$g9, 100, input$theta_c4)/dbinom(input$g9, 100, input$theta_p4)
+})
+```
