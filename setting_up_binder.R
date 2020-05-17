@@ -8,3 +8,23 @@ write_dockerfile(maintainer = "your_name")
 generate_badge() 
 
 build_binder()
+
+
+
+############################## #
+##
+## ALTERNATIVE WAY
+##
+############################## #
+
+# Note that this particular approach will be super slow.
+# And take just as long everytime you edit your code
+library(holepunch)
+write_install() # Writes install.R with all your dependencies
+write_runtime() # Writes the date your code was last modified. Can be overridden.
+generate_badge() # Generates a badge you can add to your README. Clicking badge will launch the Binder.
+# ----------------------------------------------
+# At this time push the code to GitHub
+# ----------------------------------------------
+# Then click the badge on your README or run
+build_binder() # to kick off the build process

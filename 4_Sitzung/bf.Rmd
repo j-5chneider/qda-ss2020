@@ -207,8 +207,8 @@ der Ausprägungen der diskreten Zufallsvariablen 'Anteil an G9 Befürwoter*innen
 
 ```{r, echo = F}
 renderPlot({
-      data_binom <- data.frame(Carola = dbinom(0:100, 100, input$theta_c3),
-                             Paul = dbinom(0:100, 100, input$theta_p3),
+      data_binom <- data.frame(Carola = dbinom(0:100, 100, input$theta_c4),
+                             Paul = dbinom(0:100, 100, input$theta_p4),
                              Stichprobe = 0:100)
 
   ggplot(data_binom, aes(Stichprobe, Carola)) + 

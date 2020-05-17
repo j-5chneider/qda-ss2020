@@ -4,32 +4,32 @@ slides > slide {
 }
 
 /* Code highlighting */
-/* a comment 
+/* a comment */
 .prettyprint .com {
   color: green;
   font-style: italic;
 }
-*/
 
-/* a literal value
+
+/* a literal value */
 .prettyprint .lit {
-  color: black;
+  color: orange;
 }
- */
+ 
 
-/* parenthesis, commas, ...
+/* parenthesis, commas, ... */
 .prettyprint .pun,
 .prettyprint .opn,
 .prettyprint .clo {
-  color: red;
+  color: #4169e1;
 }
-*/
 
-/* regular text 
+
+/* regular text */
 .prettyprint .pln {
-  color: blue;
+  color: black;
 }
-*/
+
 
 
 
@@ -70,6 +70,7 @@ slides > slide.title-slide hgroup p {
   color: white;
 }
 */
+
 
 /* logo title slide */
 .plogo {

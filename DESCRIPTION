@@ -1,6 +1,6 @@
 Type: Compendium
-Package: iwm OS workshop
-Title: What the Package Does (One Line, Title Case)
+Package: Fuenfte Sitzung
+Title: Aufgabenskript
 Version: 0.0.1
 Authors@R: 
   person(given = "Juergen",
@@ -8,7 +8,7 @@ Authors@R:
          role = c("aut", "cre"),
          email = "juergen.schneider@uni-tuebingen.de",
          comment = c(ORCID = "0000-0002-3772-4198"))
-Description: files of workshop
+Description: Dateien der Sitzung
 License: CC-BY 4.0
 Depends: 
   rmarkdown,
@@ -20,7 +20,8 @@ Depends:
   dplyr,
   ggpubr,
   tidyverse,
-  hrbrthemes
+  hrbrthemes,
+  BayesFactor
 Remotes: 
   centerforopenscience/osfr,
   rubenarslan/formr
