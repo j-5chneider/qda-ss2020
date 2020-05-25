@@ -35,37 +35,27 @@ library(BayesFactor)
 
 ## Lernziele
 
-* #
+* Konzept der Unsicherheit von Hypothesen verstehen
 \
 
-* #
-\
+* Verständnis von Wahrscheinlichkeitstheorie auf t-Test anwenden können
 
-* #
 
 ## Ablauf | Diese Sitzung
 
-* #
+* Rückblick
 
 \
 
-* #
+* R (Code)
 
 \
 
-* #
+* Punkt- & Verteilungshypothesen
 
-übertrag auf t-Verteilungen
-  Daten generieren
-  was ist auf x-Achse
-  wie sind die Verteilungen der Hypothesen
-Zusätzlich: Unsicherheit formulieren
-t-Test
-  Daten generieren
-  t-Test machen
-  t-Wert in grafik mit H0 visualisieren
-t-Test BF
-  priors 
+\
+
+* t-Test 
   
   
 
@@ -206,7 +196,7 @@ ggplot(ttest_data, aes(x=schlafdauer, group = gruppe, color = gruppe)) +
 ## Punkthypothese $H_0$: t-Verteilung
 __Dichtefunktion $H_0$__
 ```{r , echo=T, eval=T}
-freiheitsgrade <- 58
+freiheitsgrade <- 18
 t1_data <- data.frame(t = rt(n = 100000, 
                              df=freiheitsgrade
                              )
@@ -324,7 +314,7 @@ ttest_erg_bf <- ttestBF(formula = schlafdauer ~ gruppe,
 ttest_erg_bf
 ```
 
-## t-Test (frequentistisch) | t-Verteilung
+## t-Test (bayesianisch) | t-Verteilung
 
 ```{r , echo=T, eval=T, fig.height=3.5}
 ggplot(t1_data, aes(x=t)) + 
