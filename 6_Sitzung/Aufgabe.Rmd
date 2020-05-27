@@ -1,7 +1,7 @@
 ---
-title: "Aufgabe Vorbereitung Sitzung 6"
+title: "Aufgabe Vorbereitung Sitzung 7"
 author: "Jürgen Schneider"
-date: "20 5 2020"
+date: "27 5 2020"
 output: html_document
 ---
 
@@ -11,67 +11,91 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Einführendes Video
 
-Wenn Sie nochmals genau wissen wollen, welche Argumente Sie in den Funktionen `t.test()` (frequentistisch) und `ttestBF()` (bayesianisch) spezifizieren müssen, um bestimmte Hypothesen testen zu können: Schauen Sie sich dieses Video mitsamt Beispiel an. Sie können das Video auf Vollbild stellen, um den Code besser zu sehen.
+Zur Nachbereitung der 6. Sitzung schauen Sie sich bitte folgendes Video an.  
+Die im Video erwähnte Dokumentation der R-Funktionen finden Sie [hier](https://shiny.jschn.org/qda-ss2020/r-funktionen.Rmd).
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/EyO4uNG2LrA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/CKimCBSR3y8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 ## Aufgabe 1 {.tabset}
 
 ### Aufgabenstellung
 
-Nehmen wir an uns interessiert, ob Autos mit automatischer Gangschaltung im Durchschnitt geringere Pferdestärken aufweisen als Autos mit manueller Gangschaltung. Das erscheint mir als Auto-Laie plausibel, da Sportwagen (hohe Pferdestärken) ja meist manuelle Gangschaltung verwenden. Unsere gerichtete Hypothese zu den Pferdestärken lautet also:  
-$H_1:\mu_{automatik} < \mu_{manuell}$
-\
+In einer Studie möchten Sie untersuchen, ob die Lernleistung Ihrer Schülerinnen und Schüler (SuS) im Fach Physik davon abhängt, ob Sie Hausaufgaben vergeben oder nicht. Sie wählen deshalb zufällig 15 Ihrer SuS aus, die Hausaufgaben aufbekommen und 15 andere SuS, die keine Hausaufgaben machen müssen. Anschließend bearbeiten alle SuS einen Wissenstest zum aktuellen Stoff (wir gehen von intervallskalierter Messung aus). Ihre Hypothese ist, dass es __keinen__ Unterschied für die Lernleistung macht, ob die SuS Hausaufgaben aufbekommen haben.
 
-Testen Sie diese Hypothese frequentistisch und bayesianisch in R. Welche Rückschlüsse auf unsere Fragestellung können Sie jeweils aus den Ergebnissen ziehen?   
-  
-* Verwenden Sie (wie im Video) den Datensatz `mtcars`
-* Angaben zu den Pferderstärken finden Sie dort in der Variable `hp`
-* Angaben zur Art der Gangschaltung finden Sie in `am`
+Verwenden Sie den Workflow (Folie "Workflow" der 6. Sitzung), um die Hypothese zu testen:
 
-Sollten Sie nicht weiter kommen: Auf den nächsten Tabs gibt es Lösungshinweise.  
-  
-Sollten Sie keine eigene R-Installation besitzen, öffnen Sie diese <a href="https://mybinder.org/v2/gh/j-5chneider/qda-ss2020/master?urlpath=rstudio" target="_blank">browserbasierte R-Version</a>. Dort sind alle benötigten Pakete bereits installiert.
+   (a) Welchen inferenzstatistischen Test müssen Sie berechnen?
+   (b) Sind die Voraussetzungen erfüllt?
+   (c) Wie interpretieren Sie das Ergebnis?
 
-### Lösungshinweis 1
-
-Im Argument `formula` müssen Sie in beiden t-Tests `formula = hp ~ am` eingeben.
-
-### Lösungshinweis 2
-
-Wenn Sie die einseitige, gerichtete Hypothese testen wollen, dass Autos mit automatik-Gangschaltung im Durschnitt _weniger_ Pferdestärken besitzen, dann formulieren Sie dies im frequentistischen t-Test im Argument  
-`alternative = "less"`  
-
-### Lösungshinweis 3  
-Wenn Sie die einseitige, gerichtete Hypothese testen wollen, dass Autos mit automatik-Gangschaltung im Durschnitt _weniger_ Pferdestärken besitzen, dann formulieren Sie dies im bayesianischen t-Test im Argument  
-`nullInterval = c(-Inf,0)`
-
-### Lösung
-```{r, message=F, warning=F}
-# frequentistisch
-t.test(formula = hp ~ am,
-       data = mtcars,
-       var.equal = TRUE,
-       alternative = "less")
-
-# bayesianisch
-library(BayesFactor)
-ttestBF(formula = hp ~ am,
-        data = mtcars,
-        nullInterval = c(-Inf,0))
+Verwenden Sie den Datensatz `hausaufgaben`. Sie können ihn herunterladen, indem Sie in R das folgende Skript ausführen:
+```{r }
+# load()
 ```
+
+* Der Datensatz enthält die Variablen 
+   - `id` (Nummer der Person, unterschiedliche Nummern bedeuten unterschiedliche Personen)
+   - `gruppe` (Ausprägungen: 1 = "bekommen Hausaufgaben", 0 = "bekommen keine Hausaufgaben")
+   - `wissenstest` (Punkte im Test)
+
+
+### Hinweis 1
+
+Schauen Sie sich die Tabelle auf Folie 10 der 6. Sitzung an: Welchen t-Test müssen Sie berechnen? Handelt es sich um unabhängige oder abhängige Stichproben?
+
+### Hinweis 2
+Testung der Varianzhomogenität anhand des Levene Tests:
+```{r }
+# install.packages("car")               # Paket installieren (nur 1x)
+library(car)                          # nach jedem Neustart von R Paket laden
+leveneTest(y = wissenstest ~ as.factor(gruppe),   # der Levene test möchte, dass gruppe hier als Faktor definiert wird
+           data = hausaufgaben)
+```
+
+__Welche Erkenntnisse ziehen wir aus den Ergebnissen dieser Tests?__
+
+### Hinweis 3
+Testung der Normalverteilung in der Gruppe 1 (`hausaufgaben$gruppe == 1`)
+```{r }
+ks.test(x = hausaufgaben$wissenstest[hausaufgaben$gruppe == 1],    # welche Variable soll getestet werden?
+        y = "pnorm",       # welche Verteilung interessiert uns? Hier Normalverteilung: "pnorm"
+        mean(hausaufgaben$wissenstest[hausaufgaben$gruppe == 1]),  # wie ist der Mittelwert der Variable?
+        sd(hausaufgaben$wissenstest[hausaufgaben$gruppe == 1]))    # wie ist die Standardabweichung der Variable?
+```
+
+Testung der Normalverteilung in der Gruppe 0 (`hausaufgaben$gruppe == 0`)
+```{r }
+ks.test(x = hausaufgaben$wissenstest[hausaufgaben$gruppe == 0],    # welche Variable soll getestet werden?
+        y = "pnorm",       # welche Verteilung interessiert uns? Hier Normalverteilung: "pnorm"
+        mean(hausaufgaben$wissenstest[hausaufgaben$gruppe == 0]),  # wie ist der Mittelwert der Variable?
+        sd(hausaufgaben$wissenstest[hausaufgaben$gruppe == 0]))    # wie ist die Standardabweichung der Variable?
+```
+
+__Welche Erkenntnisse ziehen wir aus den Ergebnissen dieser Tests?__
+
+### Hinweis 4  
+Sie haben die Annahme, dass sich die Gruppen __nicht__ unterscheiden - es interessiert Sie also die $H_0: \mu_1 = \mu_0$ und nicht (wie so oft) die $H_1: \mu_1 \neq \mu_0$. Können Sie Evidenz __für__ die $H_0$ besser mit frequentistischem oder bayesianischem Hypothesentesten überprüfen?
+
+## Hinweis 5
+Da uns die Nullhypothese "interessiert" wäre eine Testung anhand von Bayes Faktoren zu bevorzugen. Hier spezifizieren wir _kein_ zusätzliches `nullInterval`: Der Test gibt uns den Vergleich der Alternativhypothese (ungerichtet) mit der Nullhypothese aus:  
+$BF_{10}=\frac{P(Daten | H_1)}{P(Daten | H_0)}$  
+Dabei ist:  
+$H_0: \mu_1 = \mu_0$ (es gibt keinen Effekt)
+$H_1: \mu_1 \neq \mu_0$ (es gibt "irgend einen" Effekt)
+
+```{r, message=F, warning=F}
+library(BayesFactor)
+ttestBF(formula = wissenstest ~ gruppe,
+        data = hausaufgaben)
+```
+
+__Wie interpretieren Sie dieses Ergebnis?__
 
 
 ## Aufgabe 2
 
-In einem wissenschaftlichen Zeitschriftenartikel schreibe ich nun über meine Erkenntnisse aus den beiden t-Tests im Ergebnisteil: 
+In einer Studie möchten Sie untersuchen, ob sich das Interesse in das Fach Geschichte zu Beginn des Schuljahres vom Interesse gegen Ende des Schuljahres unterscheidet. Sie messen das Interesse deshalb mit einem etablierten Erhebungsinstrument (wir gehen von intervallskalierter Messung aus) ein Mal zu Beginn und ein Mal am Ende des Schuljahres bei derselben Klasse. Alle Schülerinnen und Schüler nehmen an beiden Erhebungen teil. Ihre Hypothese ist, dass das Interesse abgenommen hat.
 
-> Die Ergebnisse anhand eines t-Tests für unabhängige Stichproben zeigte keine signifikanten Ergebnisse $t_{30}= 1.37, p=.910$. Die Nullypothese ($H_0: \mu_{automatik}=\mu_{manuell}$) lässt sich damit nicht zurückweisen. Was die Pferdestärke angeht, besteht also in der Population wohl kein Unterschied zwischen den beiden Gruppen.
-  
-> Wir berechneten den Bayes Faktor für die Hypothesen $H_0: \mu_{automatik}=\mu_{manuell}$ und $H_1: \mu_{automatik}<\mu_{manuell}$. Es zeigte sich ein Bayes Faktor von $BF_{10} = \frac{P(D | H_1)}{P(D | H_0)}=0.167$. Das bedeutet, dass die Nullhypothese die Daten besser vorhersagt als die Alternativhypothese und zwar fast sechs Mal so gut (Kehrwert: $BF_{01}=\frac{1}{0.1668407}=5.99$). Wir konnte also Evidenz dafür sammeln, dass es in der Population keinen Unterschied zwischen den beiden Gruppen gibt.
-
-Welche Formulierungen in diesen Ausführungen sind aus den obigen Ergebnissen allerdings so nicht ableitbar?
-
-\
-\
-
+1. Welchen t-Test würden Sie zur Testung der Unterschiede heranziehen?
+2. Eignet sich hierfür besonders das Hypothesentesten anhand frequentistischer oder bayesianischer Tests?

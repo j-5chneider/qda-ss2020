@@ -1,0 +1,256 @@
+---
+title: "R Funktionen"
+author: "Jürgen Schneider"
+date: "27 5 2020"
+output: 
+  html_document:
+    toc: yes
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+```
+
+# t-Test
+
+## Voraussetzungen {.tabset}
+
+
+### Varianzgleichheit (-homogenität)
+Varianzen $\sigma^2_1$ und $\sigma^2_2$ der zu vergleichenden Populationen sind gleich (homogen)  
+
+* $H_0:\sigma^2_1 = \sigma^2_2$
+* $p<.05$: Nullhypothese zurückweisen ($P(D | H_0)$)
+* Daumenregel: $p>.20$
+
+__unabhängige Stichproben__
+```{r }
+# install.packages("car")             # Paket installieren (nur 1x)
+library(car)                          # nach jedem Neustart von R Paket laden
+leveneTest(y = mpg ~ as.factor(am),   # der Levene test möchte, dass am hier als Faktor definiert wird
+           data = mtcars)
+```
+
+__abhängige Stichproben__  
+Etwas komplizierter: Sie müssen den Datensatz erst in ein langes Format umstellen (erste Variable unter die zweite kopieren).
+```{r }
+beide_Var_untereinander <- c(mtcars$mpg, mtcars$hp)  # erste Variable wird unter zweite Variable kopiert
+
+gruppe <- as.factor(c(                         # neue Variable als Faktor erstellen
+                     rep(1, length(mtcars$mpg)), # diese hat den Wert 1 für die Anzahl der Zeilen von mpg
+                     rep(2, length(mtcars$hp))   # und den Wert 2 für die Anzahl der Zeilen von hp
+                     ))
+
+leveneTest(y = beide_Var_untereinander,
+           group = gruppe)
+```
+
+
+### Normalverteilung
+Merkmal in beiden Populationen normalverteilt
+
+* $H_0:$ Variable ist normalverteilt
+* $p<.05$: Nullhypothese zurückweisen ($P(D | H_0)$)
+* Daumenregel: $p>.20$
+
+__unabhängige Stichproben__  
+Testung für Gruppe 0 (am = 0)
+```{r}
+ks.test(x = mtcars$mpg[mtcars$am == 0],    # welche Variable soll getestet werden?
+        y = "pnorm",       # welche Verteilung interessiert uns? Hier Normalverteilung: "pnorm"
+        mean(mtcars$mpg[mtcars$am == 0]),  # wie ist der Mittelwert der Variable?
+        sd(mtcars$mpg[mtcars$am == 0]))    # wie ist die Standardabweichung der Variable?
+```
+\
+
+Testung für Gruppe 1 (am = 1)
+```{r}
+ks.test(x = mtcars$mpg[mtcars$am == 1],    # welche Variable soll getestet werden?
+        y = "pnorm",       # welche Verteilung interessiert uns? Hier Normalverteilung: "pnorm"
+        mean(mtcars$mpg[mtcars$am == 1]),  # wie ist der Mittelwert der Variable?
+        sd(mtcars$mpg[mtcars$am == 1]))    # wie ist die Standardabweichung der Variable?
+```
+
+
+__abhängige Stichproben__  
+Testung für Variable mpg
+```{r}
+ks.test(x = mtcars$mpg,    # welche Variable soll getestet werden?
+        y = "pnorm",       # welche Verteilung interessiert uns? Hier Normalverteilung: "pnorm"
+        mean(mtcars$mpg),  # wie ist der Mittelwert der Variable?
+        sd(mtcars$mpg))    # wie ist die Standardabweichung der Variable?
+```
+\
+
+Testung für Variable hp
+```{r}
+ks.test(x = mtcars$hp,    # welche Variable soll getestet werden?
+        y = "pnorm",       # welche Verteilung interessiert uns? Hier Normalverteilung: "pnorm"
+        mean(mtcars$hp),  # wie ist der Mittelwert der Variable?
+        sd(mtcars$hp))    # wie ist die Standardabweichung der Variable?
+```
+
+
+## frequentistisch (Varianzen sind homogen) {.tabset}
+
+### unabhängige Stichproben
+
+__ungerichtete Hypothese__ (zweiseitige Testung)  
+```{r }
+t.test(formula = mpg ~ am,
+       data = mtcars,
+       paired = FALSE,
+       var.equal = TRUE) 
+```
+
+__gerichtete Hypothese__ (einseitige Testung: "erste" Stichprobe kleiner)  
+```{r }
+t.test(formula = mpg ~ am,
+       data = mtcars,
+       paired = FALSE,
+       var.equal = TRUE,
+       alternative = "less") 
+```
+
+### abhängige Stichproben
+
+__ungerichtete Hypothese__ (zweiseitige Testung)  
+```{r }
+t.test(x = mtcars$mpg,
+       y = mtcars$am,
+       paired = TRUE,
+       var.equal = TRUE)
+```
+
+__gerichtete Hypothese__ (einseitige Testung: "erste" Stichprobe größer)  
+```{r }
+t.test(x = mtcars$mpg,
+       y = mtcars$am,
+       paired = TRUE,
+       var.equal = TRUE,
+       alternative = "greater")
+```
+
+### eine Stichprobe
+```{r }
+t.test(x = mtcars$mpg,
+       mu = 0)
+```
+
+## frequentistisch (Varianzen sind nicht homogen) {.tabset}
+
+### unabhängige Stichproben
+
+__ungerichtete Hypothese__ (zweiseitige Testung)  
+```{r }
+t.test(formula = mpg ~ am,
+       data = mtcars,
+       paired = FALSE,
+       var.equal = FALSE) 
+```
+
+__gerichtete Hypothese__ (einseitige Testung: "erste" Stichprobe kleiner)  
+```{r }
+t.test(formula = mpg ~ am,
+       data = mtcars,
+       paired = FALSE,
+       var.equal = FALSE,
+       alternative = "less") 
+```
+
+### abhängige Stichproben
+
+__ungerichtete Hypothese__ (zweiseitige Testung)  
+```{r }
+t.test(x = mtcars$mpg,
+       y = mtcars$am,
+       paired = TRUE,
+       var.equal = FALSE)
+```
+
+__gerichtete Hypothese__ (einseitige Testung: "erste" Stichprobe größer)  
+```{r }
+t.test(x = mtcars$mpg,
+       y = mtcars$am,
+       paired = TRUE,
+       var.equal = FALSE,
+       alternative = "greater")
+```
+
+
+## bayesianisch {.tabset}
+
+### unabhängige Stichproben
+
+__ohne Spezifikation einer H1:__  
+$H_1: \mu_0\neq\mu_1$  
+$H_0: \mu_0=\mu_1$
+```{r }
+# install.packages("BayesFactor")  # Paket einmalig (!) installieren
+library(BayesFactor)             # Paket nach jedem Neustart von R Studio laden
+ttestBF(formula = mpg ~ am,
+        data = mtcars,
+        paired = FALSE) 
+```
+\
+
+__mit Spezifikation einer H1:__  
+$H_1: \mu_0>\mu_1$  (durch uns spezifiziert)  
+$H_2: \mu_0<\mu_1$  (automatisch mit ausgegeben)  
+$H_0: \mu_0=\mu_1$
+```{r }
+ttestBF(formula = mpg ~ am,
+        data = mtcars,
+        nullInterval = c(0,Inf), # zusätzliche Spezifizierung der Testung auf positiven Effekt
+        rscale = "wide",         # zusätzliche Spezifizierung der Unsicherheit: größere Unsicherheit
+        paired = FALSE) 
+```
+
+### abhängige Stichproben
+
+__ohne Spezifikation einer H1:__  
+$H_1: \mu_0\neq\mu_1$  
+$H_0: \mu_0=\mu_1$
+```{r }
+# install.packages("BayesFactor")  # Paket einmalig (!) installieren
+library(BayesFactor)             # Paket nach jedem Neustart von R Studio laden
+ttestBF(x = mtcars$mpg,
+        y = mtcars$hp,
+        paired = TRUE) 
+```
+\
+
+__mit Spezifikation einer H1:__  
+$H_1: \mu_0>\mu_1$  (durch uns spezifiziert)  
+$H_2: \mu_0<\mu_1$  (automatisch mit ausgegeben)  
+$H_0: \mu_0=\mu_1$
+```{r }
+ttestBF(x = mtcars$mpg,
+        y = mtcars$hp,
+        nullInterval = c(0,Inf), # zusätzliche Spezifizierung der Testung auf positiven Effekt
+        rscale = "wide",         # zusätzliche Spezifizierung der Unsicherheit: größere Unsicherheit
+        paired = TRUE) 
+```
+
+### eine Stichprobe
+```{r }
+# install.packages("BayesFactor")  # Paket einmalig (!) installieren
+library(BayesFactor)             # Paket nach jedem Neustart von R Studio laden
+ttestBF(x = mtcars$mpg,
+        mu = 0)
+```
+
+```{r }
+ttestBF(x = mtcars$mpg,
+        rscale = "ultrawide",         # zusätzliche Spezifizierung der Unsicherheit: sehr große Unsicherheit
+        mu = 0)
+```
+
+

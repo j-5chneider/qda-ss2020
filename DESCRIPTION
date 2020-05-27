@@ -21,7 +21,9 @@ Depends:
   ggpubr,
   tidyverse,
   hrbrthemes,
-  BayesFactor
+  BayesFactor,
+  car,
+  effsize
 Remotes: 
   centerforopenscience/osfr,
   rubenarslan/formr

@@ -62,7 +62,7 @@ library(BayesFactor)
 
 ## Recap: Vorbereitende Aufgabe | Berechnung & Interpretation t-Test
 
-Schauen Sie nochmals die zwei vorbereitenden Aufgaben durch: []()
+Schauen Sie nochmals die zwei vorbereitenden Aufgaben durch: [Link](https://raw.githack.com/j-5chneider/qda-ss2020/master/6_Sitzung/Aufgabe.html)
 
 * __Aufgabe 1:__ Wie ist es Ihnen gelungen die Ergebnisse der beiden t-Tests zu berechnen?
 * Ideen zu __Aufgabe 2:__ "Welche Formulierungen in diesen Ausführungen sind aus den obigen Ergebnissen allerdings so nicht ableitbar?"
